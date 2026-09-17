@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../services/api_service.dart';
+import 'home_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -29,9 +30,11 @@ class _LoginScreenState extends State<LoginScreen> {
     try {
       await ApiService.login(account, password);
       if (!mounted) return;
-      // التوجيه للشاشة الرئيسية لاحقاً
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('تم تسجيل الدخول بنجاح!')),
+      
+      // التوجيه المباشر للشاشة الرئيسية عند نجاح الدخول
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const HomeScreen()),
       );
     } catch (e) {
       if (!mounted) return;
