@@ -2,9 +2,14 @@ import 'package:flutter/material.dart';
 import 'wifi_cabin_screen.dart';
 import 'networks_gallery_screen.dart';
 import 'login_screen.dart';
+import 'settings_screen.dart';
+import 'add_network_screen.dart';
+import 'admin_panel_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
+
+  final bool isAdminUser = true; // تفعيل خيار الأدمن
 
   @override
   Widget build(BuildContext context) {
@@ -49,8 +54,8 @@ class HomeScreen extends StatelessWidget {
                         ),
                       ],
                     ),
-                    const SizedBox(height: 10),
-                    const Text('الرصيد المتاح', style: TextStyle(color: Colors.white70, fontSize: 16)),
+                    const SizedBox(height: 16),
+                    const Text('رصيدك المتاح', style: TextStyle(color: Colors.white70, fontSize: 16)),
                     const SizedBox(height: 5),
                     const Row(
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -59,7 +64,7 @@ class HomeScreen extends StatelessWidget {
                         SizedBox(width: 8),
                         Text('*****', style: TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.bold)),
                         SizedBox(width: 8),
-                        Icon(Icons.visibility_off, color: Colors.white70, size: 18),
+                        Icon(Icons.visibility_off, color: Colors.white76, size: 18),
                       ],
                     ),
                   ],
@@ -74,30 +79,15 @@ class HomeScreen extends StatelessWidget {
                   crossAxisSpacing: 10,
                   mainAxisSpacing: 10,
                   children: [
-                    _buildServiceItem(
-                      context,
-                      Icons.payment,
-                      'كبينة السداد',
-                      Colors.orange,
-                      onTap: () {},
-                    ),
-                    _buildServiceItem(
-                      context,
-                      Icons.wifi,
-                      'كبينة WIFI',
-                      Colors.deepOrange,
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => const WifiCabinScreen()),
-                        );
-                      },
-                    ),
+                    _buildServiceItem(context, Icons.payment, 'كروت السداد', Colors.orange, onTap: () {}),
+                    _buildServiceItem(context, Icons.wifi, 'كابينة WiFi', Colors.deepOrange, onTap: () {
+                      Navigator.push(context, MaterialPageRoute(builder: (context) => const WificabinScreen()));
+                    }),
                     _buildServiceItem(context, Icons.apps, 'البرامج', Colors.green, onTap: () {}),
                     _buildServiceItem(context, Icons.sports_esports, 'معرض الألعاب', Colors.cyan, onTap: () {}),
-                    _buildServiceItem(context, Icons.add_card, 'غذى حسابك', Colors.blue, onTap: () {}),
-                    _buildServiceItem(context, Icons.people_alt, 'إدارة العملاء', Colors.amber, onTap: () {}),
-                    _buildServiceItem(context, Icons.menu_book, 'الدفتر المحاسبي', Colors.purple, onTap: () {}),
+                    _buildServiceItem(context, Icons.add_card, 'شحن حسابك', Colors.blue, onTap: () {}),
+                    _buildServiceItem(context, Icons.people_alt, 'إدارة عملائك', Colors.amber, onTap: () {}),
+                    _buildServiceItem(context, Icons.menu_book, 'الدليل الجماهيري', Colors.purple, onTap: () {}),
                     _buildServiceItem(context, Icons.headset_mic, 'الدعم الفني', Colors.grey, onTap: () {}),
                   ],
                 ),
@@ -142,6 +132,7 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
+  // القائمة الجانبية المربوطة بالشاشات الجديدة
   Widget _buildDrawer(BuildContext context) {
     return Drawer(
       child: ListView(
@@ -156,35 +147,58 @@ class HomeScreen extends StatelessWidget {
               child: Icon(Icons.person, color: Color(0xFF5A3192)),
             ),
           ),
-          _buildDrawerTile(Icons.settings, 'الإعدادات'),
-          _buildDrawerTile(Icons.list_alt, 'العمليات'),
-          _buildDrawerTile(Icons.bar_chart, 'التقارير'),
-          _buildDrawerTile(Icons.wallet, 'التأمينات'),
-          _buildDrawerTile(Icons.today, 'اليوميات'),
-          _buildDrawerTile(Icons.emoji_events, 'المسابقات'),
-          _buildDrawerTile(Icons.campaign, 'عروض وإعلانات'),
-          _buildDrawerTile(Icons.sim_card, 'الشرائح'),
+
+          // 1. زر الإعدادات
+          _buildDrawerTile(
+            Icons.settings,
+            'الإعدادات',
+            onTap: () {
+              Navigator.pop(context);
+              Navigator.push(context, MaterialPageRoute(builder: (context) => const SettingsScreen()));
+            },
+          ),
+
+          // 2. زر طلب إضافة شبكة (إرسال للواتساب)
+          _buildDrawerTile(
+            Icons.wifi_add,
+            'طلب إضافة شبكة',
+            onTap: () {
+              Navigator.pop(context);
+              Navigator.push(context, MaterialPageRoute(builder: (context) => const AddNetworkScreen()));
+            },
+          ),
+
+          // 3. زر معرض شبكاتي
           _buildDrawerTile(
             Icons.wifi_tethering,
             'معرض شبكاتي',
             onTap: () {
-              Navigator.pop(context); // إغلاق القائمة الجانبية
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const NetworksGalleryScreen()),
-              );
+              Navigator.pop(context);
+              Navigator.push(context, MaterialPageRoute(builder: (context) => const NetworksGalleryScreen()));
             },
           ),
+
+          // 4. لوحة تحكم الأدمن
+          if (isAdminUser)
+            _buildDrawerTile(
+              Icons.admin_panel_settings,
+              'لوحة تحكم الأدمن',
+              color: Colors.redAccent,
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.push(context, MaterialPageRoute(builder: (context) => const AdminPanelScreen()));
+              },
+            ),
+
           const Divider(),
+
+          // 5. تسجيل الخروج
           _buildDrawerTile(
             Icons.logout,
             'تسجيل خروج',
             color: Colors.red,
             onTap: () {
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(builder: (context) => const LoginScreen()),
-              );
+              Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const LoginScreen()));
             },
           ),
         ],
@@ -195,7 +209,7 @@ class HomeScreen extends StatelessWidget {
   Widget _buildDrawerTile(IconData icon, String title, {VoidCallback? onTap, Color color = Colors.black87}) {
     return ListTile(
       leading: Icon(icon, color: color),
-      title: Text(title, style: TextStyle(color: color)),
+      title: Text(title, style: TextStyle(color: color, fontWeight: FontWeight.bold)),
       onTap: onTap,
     );
   }
