@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../services/api_service.dart';
+import 'register_screen.dart';
 import 'home_screen.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -10,94 +10,163 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  final _accountController = TextEditingController();
-  final _passwordController = TextEditingController();
-  bool _isLoading = false;
-
-  void _handleLogin() async {
-    final account = _accountController.text.trim();
-    final password = _passwordController.text.trim();
-
-    if (account.isEmpty || password.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('يرجى إدخال رقم الحساب وكلمة المرور')),
-      );
-      return;
-    }
-
-    setState(() => _isLoading = true);
-
-    try {
-      await ApiService.login(account, password);
-      if (!mounted) return;
-      
-      // التوجيه المباشر للشاشة الرئيسية عند نجاح الدخول
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => const HomeScreen()),
-      );
-    } catch (e) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(e.toString().replaceAll('Exception: ', ''))),
-      );
-    } finally {
-      if (mounted) setState(() => _isLoading = false);
-    }
-  }
+  bool _isPasswordVisible = false;
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Directionality(
-        textDirection: TextDirection.rtl,
-        child: Padding(
-          padding: const EdgeInsets.all(24.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              const Icon(Icons.wifi_tethering, size: 80, color: Colors.blue),
-              const SizedBox(height: 16),
-              const Text(
-                'تطبيق الواي فاي',
-                textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 32),
-              TextField(
-                controller: _accountController,
-                keyboardType: TextInputType.number,
-                decoration: const InputDecoration(
-                  labelText: 'رقم الحساب',
-                  border: OutlineInputBorder(),
-                  prefixIcon: Icon(Icons.person),
+    return Directionality(
+      textDirection: TextDirection.rtl,
+      child: Scaffold(
+        backgroundColor: const Color(0xFFF4F3F8),
+        body: SafeArea(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 30.0),
+            child: Column(
+              children: [
+                const SizedBox(height: 20),
+                // الشعار العلوي
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: const BoxDecoration(
+                    color: Colors.white,
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(Icons.wifi, size: 60, color: Color(0xFF5A3192)),
                 ),
-              ),
-              const SizedBox(height: 16),
-              TextField(
-                controller: _passwordController,
-                obscureText: true,
-                decoration: const InputDecoration(
-                  labelText: 'كلمة المرور',
-                  border: OutlineInputBorder(),
-                  prefixIcon: Icon(Icons.lock),
+                const SizedBox(height: 30),
+
+                // بطاقة بيانات الدخول
+                Card(
+                  elevation: 4,
+                  shadowColor: Colors.black12,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                  child: Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Column(
+                      children: [
+                        const TextField(
+                          textAlign: TextAlign.right,
+                          decoration: InputDecoration(
+                            hintText: 'اسم الدخول - رقم الهاتف',
+                            suffixIcon: Icon(Icons.person_outline, color: Colors.grey),
+                            border: InputBorder.none,
+                          ),
+                        ),
+                        const Divider(height: 1),
+                        TextField(
+                          obscureText: !_isPasswordVisible,
+                          textAlign: TextAlign.right,
+                          decoration: InputDecoration(
+                            hintText: 'كلمة السر',
+                            suffixIcon: const Icon(Icons.lock_outline, color: Colors.grey),
+                            prefixIcon: IconButton(
+                              icon: Icon(
+                                _isPasswordVisible ? Icons.visibility : Icons.visibility_off,
+                                color: Colors.grey,
+                              ),
+                              onPressed: () => setState(() => _isPasswordVisible = !_isPasswordVisible),
+                            ),
+                            border: InputBorder.none,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
                 ),
-              ),
-              const SizedBox(height: 24),
-              ElevatedButton(
-                onPressed: _isLoading ? null : _handleLogin,
-                style: ElevatedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 16),
+
+                // نسيت كلمة السر
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: TextButton(
+                    onPressed: () {},
+                    child: const Text(
+                      'نسيت كلمة السر؟',
+                      style: TextStyle(color: Color(0xFF5A3192), fontWeight: FontWeight.bold),
+                    ),
+                  ),
                 ),
-                child: _isLoading
-                    ? const CircularProgressIndicator()
-                    : const Text('تسجيل الدخول', style: TextStyle(fontSize: 18)),
-              ),
-            ],
+                const SizedBox(height: 10),
+
+                // زر الدخول
+                SizedBox(
+                  width: double.infinity,
+                  height: 50,
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF5A3192),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(25)),
+                    ),
+                    onPressed: () {
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(builder: (context) => const HomeScreen()),
+                      );
+                    },
+                    child: const Text(
+                      'دخول',
+                      style: TextStyle(fontSize: 18, color: Colors.white, fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 25),
+
+                // أيقونة البصمة
+                const Icon(Icons.fingerprint, size: 55, color: Color(0xFF5A3192)),
+                const SizedBox(height: 25),
+
+                // خيار إنشاء حساب
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Text('لايوجد لديك حساب ', style: TextStyle(fontWeight: FontWeight.bold)),
+                    const SizedBox(width: 5),
+                    InkWell(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => const RegisterScreen()),
+                        );
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                        decoration: BoxDecoration(
+                          color: Colors.grey.shade200,
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: const Text(
+                          'إنشاء حساب جديد',
+                          style: TextStyle(color: Color(0xFF5A3192), fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 35),
+
+                // أزرار التواصل والدعم بالأسفل
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    _buildBottomIconButton(Icons.phone, Colors.blue),
+                    const SizedBox(width: 15),
+                    _buildBottomIconButton(Icons.code, Colors.red),
+                    const SizedBox(width: 15),
+                    _buildBottomIconButton(Icons.info_outline, Colors.lightBlue),
+                  ],
+                )
+              ],
+            ),
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildBottomIconButton(IconData icon, Color color) {
+    return CircleAvatar(
+      radius: 22,
+      backgroundColor: color,
+      child: Icon(icon, color: Colors.white, size: 20),
     );
   }
 }
