@@ -18,7 +18,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   String _selectedDocType = 'بطاقة شخصية';
   bool _agreedToTerms = false;
-  bool _hasDocumentImage = false; // حالة إرفاق صورة الوثيقة
+  bool _hasDocumentImage = false;
 
   @override
   Widget build(BuildContext context) {
@@ -46,7 +46,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // عنوان البيانات الشخصية
                 const Row(
                   children: [
                     Expanded(child: Divider()),
@@ -62,7 +61,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 ),
                 const SizedBox(height: 15),
 
-                // حقول البيانات مع الرسائل التحذيرية الحمراء
                 _buildInputField(
                   controller: _nameController,
                   hint: 'الاسم الرباعي مع اللقب',
@@ -85,7 +83,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 _buildInputField(
                   controller: _addressController,
                   hint: 'العنوان',
-                  icon: Icons.location_on_outline,
+                  icon: Icons.location_on_outlined, // تم تعديل الأيقونة هنا
                   errorMsg: 'يرجى ادخال العنوان',
                 ),
                 _buildInputField(
@@ -99,7 +97,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 const Text('اختر نوع الوثيقة', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
                 const SizedBox(height: 8),
 
-                // خيارات الوثيقة
                 SingleChildScrollView(
                   scrollDirection: Axis.horizontal,
                   child: Row(
@@ -113,7 +110,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 ),
                 const SizedBox(height: 12),
 
-                // خيار إرفاق صورة الهوية / الوثيقة
                 InkWell(
                   onTap: () {
                     setState(() {
@@ -149,7 +145,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 ),
                 const SizedBox(height: 15),
 
-                // خيار الموافقة على الشروط
                 Row(
                   children: [
                     Checkbox(
@@ -163,7 +158,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 ),
                 const SizedBox(height: 20),
 
-                // زر إكمال التسجيل
                 SizedBox(
                   width: double.infinity,
                   height: 50,
@@ -242,4 +236,3 @@ class _RegisterScreenState extends State<RegisterScreen> {
     );
   }
 }
-
