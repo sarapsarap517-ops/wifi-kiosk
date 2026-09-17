@@ -21,3 +21,7 @@ dev_dependencies:
 flutter:
   uses-material-design: true
 
+dependencies:
+  flutter:
+    sdk: flutter
+  url_launcher: ^6.2.5
