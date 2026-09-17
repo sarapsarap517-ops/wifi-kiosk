@@ -14,8 +14,22 @@ class MyApp extends StatelessWidget {
       title: 'تطبيق الواي فاي',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
-        useMaterial3: true,
+        primaryColor: const Color(0xFF5A3192),
+        scaffoldBackgroundColor: const Color(0xFFF4F3F8),
+        appBarTheme: const AppBarTheme(
+          backgroundColor: Color(0xFF5A3192),
+          elevation: 0,
+          centerTitle: true,
+          iconTheme: IconThemeData(color: Colors.white),
+          titleTextStyle: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
+        ),
+        elevatedButtonTheme: ElevatedButtonThemeData(
+          style: ElevatedButton.styleFrom(
+            backgroundColor: const Color(0xFF5A3192),
+            foregroundColor: Colors.white,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          ),
+        ),
       ),
       home: const LoginScreen(),
     );
