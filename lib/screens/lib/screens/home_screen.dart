@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../services/api_service.dart';
+import 'categories_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -79,7 +80,12 @@ class _HomeScreenState extends State<HomeScreen> {
                                 subtitle: Text('رقم الشبكة: ${net['number']}'),
                                 trailing: const Icon(Icons.chevron_left),
                                 onTap: () {
-                                  // الانتقال لشاشة الفئات والشراء
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => CategoriesScreen(network: net),
+                                    ),
+                                  );
                                 },
                               ),
                             );
