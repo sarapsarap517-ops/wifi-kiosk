@@ -14,7 +14,7 @@ class MyApp extends StatelessWidget {
       title: 'تطبيق الواي فاي',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
-        colorSchemeSeed: Colors.blue,
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
         useMaterial3: true,
       ),
       home: const LoginScreen(),
