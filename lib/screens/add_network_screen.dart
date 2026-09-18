@@ -11,44 +11,56 @@ class AddNetworkScreen extends StatefulWidget {
 
 class _AddNetworkScreenState extends State<AddNetworkScreen> {
   final _formKey = GlobalKey<FormState>();
+
   final _netNameController = TextEditingController();
   final _ownerNameController = TextEditingController();
   final _phoneController = TextEditingController();
   final _cityController = TextEditingController();
 
   Future<void> _submitRequest() async {
-    if (_formKey.currentState!.validate()) {
-      final generatedId =
-          (1000 + NetworkDataStore.requests.length + 1).toString();
-
-      final newNetwork = NetworkRequest(
-        id: generatedId,
-        networkName: _netNameController.text.trim(),
-        ownerName: _ownerNameController.text.trim(),
-        phone: _phoneController.text.trim(),
-        city: _cityController.text.trim(),
-        status: 'قيد الانتظار',
-        categories: const [],
-      );
-
-      setState(() {
-        NetworkDataStore.requests.add(newNetwork);
-      });
-
-      await NetworkDataStore.saveData();
-
-      if (!mounted) return;
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            'تم إرسال طلب إضافة شبكة "${newNetwork.networkName}" بنجاح، بانتظار موافقة الأدمن.',
-          ),
-        ),
-      );
-
-      Navigator.pop(context);
+    if (!_formKey.currentState!.validate()) {
+      return;
     }
+
+    final generatedId =
+        (1000 + NetworkDataStore.requests.length + 1).toString();
+
+    final newNetwork = NetworkRequest(
+      id: generatedId,
+      networkName: _netNameController.text.trim(),
+      ownerName: _ownerNameController.text.trim(),
+      phone: _phoneController.text.trim(),
+      city: _cityController.text.trim(),
+      status: 'قيد الانتظار',
+      categories: const [],
+    );
+
+    setState(() {
+      NetworkDataStore.requests.add(newNetwork);
+    });
+
+    await NetworkDataStore.saveData();
+
+    if (!mounted) return;
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          'تم إرسال طلب إضافة شبكة "${newNetwork.networkName}" بنجاح',
+        ),
+      ),
+    );
+
+    Navigator.pop(context);
+  }
+
+  @override
+  void dispose() {
+    _netNameController.dispose();
+    _ownerNameController.dispose();
+    _phoneController.dispose();
+    _cityController.dispose();
+    super.dispose();
   }
 
   @override
@@ -62,7 +74,7 @@ class _AddNetworkScreenState extends State<AddNetworkScreen> {
           centerTitle: true,
         ),
         body: Padding(
-          padding: const EdgeInsets.all(16.0),
+          padding: const EdgeInsets.all(16),
           child: Form(
             key: _formKey,
             child: ListView(
@@ -73,8 +85,12 @@ class _AddNetworkScreenState extends State<AddNetworkScreen> {
                     labelText: 'اسم الشبكة *',
                     border: OutlineInputBorder(),
                   ),
-                  validator: (v) =>
-                      v == null || v.isEmpty ? 'يرجى إدخال اسم الشبكة' : null,
+                  validator: (value) {
+                    if (value == null || value.trim().isEmpty) {
+                      return 'يرجى إدخال اسم الشبكة';
+                    }
+                    return null;
+                  },
                 ),
                 const SizedBox(height: 12),
                 TextFormField(
@@ -83,8 +99,12 @@ class _AddNetworkScreenState extends State<AddNetworkScreen> {
                     labelText: 'اسم المالك *',
                     border: OutlineInputBorder(),
                   ),
-                  validator: (v) =>
-                      v == null || v.isEmpty ? 'يرجى إدخال اسم المالك' : null,
+                  validator: (value) {
+                    if (value == null || value.trim().isEmpty) {
+                      return 'يرجى إدخال اسم المالك';
+                    }
+                    return null;
+                  },
                 ),
                 const SizedBox(height: 12),
                 TextFormField(
@@ -94,8 +114,12 @@ class _AddNetworkScreenState extends State<AddNetworkScreen> {
                     labelText: 'رقم الهاتف *',
                     border: OutlineInputBorder(),
                   ),
-                  validator: (v) =>
-                      v == null || v.isEmpty ? 'يرجى إدخال رقم الهاتف' : null,
+                  validator: (value) {
+                    if (value == null || value.trim().isEmpty) {
+                      return 'يرجى إدخال رقم الهاتف';
+                    }
+                    return null;
+                  },
                 ),
                 const SizedBox(height: 12),
                 TextFormField(
@@ -104,19 +128,27 @@ class _AddNetworkScreenState extends State<AddNetworkScreen> {
                     labelText: 'المدينة / المنطقة *',
                     border: OutlineInputBorder(),
                   ),
-                  validator: (v) =>
-                      v == null || v.isEmpty ? 'يرجى إدخال المدينة' : null,
+                  validator: (value) {
+                    if (value == null || value.trim().isEmpty) {
+                      return 'يرجى إدخال المدينة أو المنطقة';
+                    }
+                    return null;
+                  },
                 ),
                 const SizedBox(height: 24),
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF5A3192),
-                    padding: const EdgeInsets.symmetric(vertical: 14),
-                  ),
-                  onPressed: _submitRequest,
-                  child: const Text(
-                    'إرسال الطلب',
-                    style: TextStyle(color: Colors.white, fontSize: 16),
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: _submitRequest,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF5A3192),
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                    ),
+                    child: const Text(
+                      'إرسال الطلب',
+                      style: TextStyle(fontSize: 16),
+                    ),
                   ),
                 ),
               ],
