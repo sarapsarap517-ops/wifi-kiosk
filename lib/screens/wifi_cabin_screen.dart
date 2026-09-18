@@ -413,15 +413,22 @@ class _WifiCabinScreenState extends State<WifiCabinScreen> {
     );
   }
 
-  void _processPurchase(NetworkRequest net, CategoryModel cat, int quantity, String phone) {
+  // 1. دالة الشراء والمزامنة التلقائية للمحفظة والتخزين
+  void _processPurchase(NetworkRequest net, CategoryModel cat, int quantity, String phone) async {
     if (cat.remaining >= quantity) {
       setState(() {
         cat.remaining -= quantity;
         cat.sold += quantity;
       });
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('تم شراء $quantity كرت من شبكة ${net.networkName} بنجاح، وتم الخصم من المحفظة.')),
-      );
+      
+      // حفظ التغييرات في التخزين المحلي فوراً
+      await NetworkDataStore.saveData();
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('تم شراء $quantity كرت من شبكة ${net.networkName} بنجاح، وتم الخصم من المحفظة.')),
+        );
+      }
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('عذراً، عدد الكروت المتوفرة غير كافٍ في هذه الفئة')),
@@ -429,6 +436,7 @@ class _WifiCabinScreenState extends State<WifiCabinScreen> {
     }
   }
 
+  // 2. دالة إرسال عبر الرسائل النصية SMS
   void _sendViaSMS(String phone, String netName, String catName) async {
     final Uri smsUri = Uri(scheme: 'sms', path: phone, queryParameters: {'body': 'تم شراء كرت شبكة $netName فئة $catName بنجاح.'});
     if (await canLaunchUrl(smsUri)) {
@@ -436,11 +444,30 @@ class _WifiCabinScreenState extends State<WifiCabinScreen> {
     }
   }
 
+  // 3. دالة فتح الواتساب وإرسال الرسالة المباشرة
   void _sendViaWhatsApp(String phone, String netName, String catName) async {
-    final String cleanPhone = phone.replaceAll(RegExp(r'[^\d]'), '');
-    final Uri whatsappUri = Uri.parse("https://wa.me/$cleanPhone?text=${Uri.encodeComponent('تم شراء كرت شبكة $netName فئة $catName بنجاح.')}");
-    if (await canLaunchUrl(whatsappUri)) {
-      await launchUrl(whatsappUri, mode: LaunchMode.externalApplication);
+    String cleanPhone = phone.replaceAll(RegExp(r'[^\d]'), '');
+
+    if (cleanPhone.startsWith('7') && cleanPhone.length == 9) {
+      cleanPhone = '967$cleanPhone';
+    }
+
+    final String message = 'تم شراء كرت شبكة $netName فئة $catName بنجاح.';
+    final Uri nativeWhatsappUri = Uri.parse("whatsapp://send?phone=$cleanPhone&text=${Uri.encodeComponent(message)}");
+    final Uri webWhatsappUri = Uri.parse("https://wa.me/$cleanPhone?text=${Uri.encodeComponent(message)}");
+
+    try {
+      if (await canLaunchUrl(nativeWhatsappUri)) {
+        await launchUrl(nativeWhatsappUri);
+      } else {
+        await launchUrl(webWhatsappUri, mode: LaunchMode.externalApplication);
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('تعذر فتح تطبيق الواتساب')),
+        );
+      }
     }
   }
 }
