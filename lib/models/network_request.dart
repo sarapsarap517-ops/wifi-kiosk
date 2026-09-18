@@ -1,5 +1,4 @@
 import 'dart:convert';
-
 import 'package:shared_preferences/shared_preferences.dart';
 
 class CategoryModel {
@@ -65,9 +64,7 @@ class NetworkRequest {
       'city': city,
       'phone': phone,
       'status': status,
-      'categories': categories.map((category) {
-        return category.toJson();
-      }).toList(),
+      'categories': categories.map((category) => category.toJson()).toList(),
     };
   }
 
@@ -84,11 +81,8 @@ class NetworkRequest {
       categories: categoriesJson is List
           ? categoriesJson
               .whereType<Map>()
-              .map((category) {
-                return CategoryModel.fromJson(
-                  Map<String, dynamic>.from(category),
-                );
-              })
+              .map((category) =>
+                  CategoryModel.fromJson(Map<String, dynamic>.from(category)))
               .toList()
           : <CategoryModel>[],
     );
@@ -100,19 +94,14 @@ class NetworkDataStore {
 
   static Future<void> saveData() async {
     final preferences = await SharedPreferences.getInstance();
-
     final encodedData = jsonEncode(
-      requests.map((request) {
-        return request.toJson();
-      }).toList(),
+      requests.map((request) => request.toJson()).toList(),
     );
-
     await preferences.setString('saved_networks', encodedData);
   }
 
   static Future<void> loadData() async {
     final preferences = await SharedPreferences.getInstance();
-
     final savedData = preferences.getString('saved_networks');
 
     if (savedData == null || savedData.isEmpty) {
@@ -126,11 +115,8 @@ class NetworkDataStore {
       if (decodedData is List) {
         requests = decodedData
             .whereType<Map>()
-            .map((item) {
-              return NetworkRequest.fromJson(
-                Map<String, dynamic>.from(item),
-              );
-            })
+            .map((item) =>
+                NetworkRequest.fromJson(Map<String, dynamic>.from(item)))
             .toList();
       }
     } catch (_) {
