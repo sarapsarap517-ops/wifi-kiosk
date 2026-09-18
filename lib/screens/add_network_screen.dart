@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import '../models/network_request.dart';
 
 class AddNetworkScreen extends StatefulWidget {
@@ -15,10 +16,10 @@ class _AddNetworkScreenState extends State<AddNetworkScreen> {
   final _phoneController = TextEditingController();
   final _cityController = TextEditingController();
 
-  void _submitRequest() {
+  Future<void> _submitRequest() async {
     if (_formKey.currentState!.validate()) {
-      // توليد رقم تسلسلي آلي للشبكة (مثلاً يبدأ من 1001)
-      final generatedId = (1000 + NetworkDataStore.requests.length + 1).toString();
+      final generatedId =
+          (1000 + NetworkDataStore.requests.length + 1).toString();
 
       final newNetwork = NetworkRequest(
         id: generatedId,
@@ -27,15 +28,23 @@ class _AddNetworkScreenState extends State<AddNetworkScreen> {
         phone: _phoneController.text.trim(),
         city: _cityController.text.trim(),
         status: 'قيد الانتظار',
-        categories: [], // بدون فئات حتى يضيفها المالك لاحقاً
+        categories: const [],
       );
 
       setState(() {
         NetworkDataStore.requests.add(newNetwork);
       });
 
+      await NetworkDataStore.saveData();
+
+      if (!mounted) return;
+
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('تم إرسال طلب إضافة شبكة "${newNetwork.networkName}" بنجاح، بانتظار موافقة الأدمن.')),
+        SnackBar(
+          content: Text(
+            'تم إرسال طلب إضافة شبكة "${newNetwork.networkName}" بنجاح، بانتظار موافقة الأدمن.',
+          ),
+        ),
       );
 
       Navigator.pop(context);
@@ -60,27 +69,43 @@ class _AddNetworkScreenState extends State<AddNetworkScreen> {
               children: [
                 TextFormField(
                   controller: _netNameController,
-                  decoration: const InputDecoration(labelText: 'اسم الشبكة *', border: OutlineInputBorder()),
-                  validator: (v) => v == null || v.isEmpty ? 'يرجى إدخال اسم الشبكة' : null,
+                  decoration: const InputDecoration(
+                    labelText: 'اسم الشبكة *',
+                    border: OutlineInputBorder(),
+                  ),
+                  validator: (v) =>
+                      v == null || v.isEmpty ? 'يرجى إدخال اسم الشبكة' : null,
                 ),
                 const SizedBox(height: 12),
                 TextFormField(
                   controller: _ownerNameController,
-                  decoration: const InputDecoration(labelText: 'اسم المالك *', border: OutlineInputBorder()),
-                  validator: (v) => v == null || v.isEmpty ? 'يرجى إدخال اسم المالك' : null,
+                  decoration: const InputDecoration(
+                    labelText: 'اسم المالك *',
+                    border: OutlineInputBorder(),
+                  ),
+                  validator: (v) =>
+                      v == null || v.isEmpty ? 'يرجى إدخال اسم المالك' : null,
                 ),
                 const SizedBox(height: 12),
                 TextFormField(
                   controller: _phoneController,
                   keyboardType: TextInputType.phone,
-                  decoration: const InputDecoration(labelText: 'رقم الهاتف *', border: OutlineInputBorder()),
-                  validator: (v) => v == null || v.isEmpty ? 'يرجى إدخال رقم الهاتف' : null,
+                  decoration: const InputDecoration(
+                    labelText: 'رقم الهاتف *',
+                    border: OutlineInputBorder(),
+                  ),
+                  validator: (v) =>
+                      v == null || v.isEmpty ? 'يرجى إدخال رقم الهاتف' : null,
                 ),
                 const SizedBox(height: 12),
                 TextFormField(
                   controller: _cityController,
-                  decoration: const InputDecoration(labelText: 'المدينة / المنطقة *', border: OutlineInputBorder()),
-                  validator: (v) => v == null || v.isEmpty ? 'يرجى إدخال المدينة' : null,
+                  decoration: const InputDecoration(
+                    labelText: 'المدينة / المنطقة *',
+                    border: OutlineInputBorder(),
+                  ),
+                  validator: (v) =>
+                      v == null || v.isEmpty ? 'يرجى إدخال المدينة' : null,
                 ),
                 const SizedBox(height: 24),
                 ElevatedButton(
@@ -89,7 +114,10 @@ class _AddNetworkScreenState extends State<AddNetworkScreen> {
                     padding: const EdgeInsets.symmetric(vertical: 14),
                   ),
                   onPressed: _submitRequest,
-                  child: const Text('إرسال الطلب', style: TextStyle(color: Colors.white, fontSize: 16)),
+                  child: const Text(
+                    'إرسال الطلب',
+                    style: TextStyle(color: Colors.white, fontSize: 16),
+                  ),
                 ),
               ],
             ),
