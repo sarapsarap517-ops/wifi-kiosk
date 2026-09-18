@@ -4,7 +4,7 @@ import 'networks_gallery_screen.dart';
 import 'login_screen.dart';
 import 'settings_screen.dart';
 import 'add_network_screen.dart';
-import 'admin_panel_screen.dart';
+import 'admin_requests_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -132,7 +132,7 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
-  // القائمة الجانبية المربوطة بالشاشات الجديدة
+  // القائمة الجانبية (Drawer)
   Widget _buildDrawer(BuildContext context) {
     return Drawer(
       child: ListView(
@@ -148,7 +148,7 @@ class HomeScreen extends StatelessWidget {
             ),
           ),
 
-          // 1. زر الإعدادات
+          // 1. الإعدادات
           _buildDrawerTile(
             Icons.settings,
             'الإعدادات',
@@ -158,7 +158,7 @@ class HomeScreen extends StatelessWidget {
             },
           ),
 
-          // 2. زر طلب إضافة شبكة (إرسال للواتساب)
+          // 2. طلب إضافة شبكة
           _buildDrawerTile(
             Icons.wifi_add,
             'طلب إضافة شبكة',
@@ -168,7 +168,7 @@ class HomeScreen extends StatelessWidget {
             },
           ),
 
-          // 3. زر معرض شبكاتي
+          // 3. معرض شبكاتي
           _buildDrawerTile(
             Icons.wifi_tethering,
             'معرض شبكاتي',
@@ -178,15 +178,15 @@ class HomeScreen extends StatelessWidget {
             },
           ),
 
-          // 4. لوحة تحكم الأدمن
+          // 4. طلبات الشبكات (للأدمن)
           if (isAdminUser)
             _buildDrawerTile(
               Icons.admin_panel_settings,
-              'لوحة تحكم الأدمن',
+              'لوحة طلبات الشبكات',
               color: Colors.redAccent,
               onTap: () {
                 Navigator.pop(context);
-                Navigator.push(context, MaterialPageRoute(builder: (context) => const AdminPanelScreen()));
+                Navigator.push(context, MaterialPageRoute(builder: (context) => const AdminRequestsScreen()));
               },
             ),
 
