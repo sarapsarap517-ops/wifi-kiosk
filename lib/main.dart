@@ -1,7 +1,14 @@
 import 'package:flutter/material.dart';
+import 'models/network_request.dart';
 import 'screens/login_screen.dart';
 
-void main() {
+void main() async {
+  // ضمان تهيئة إطار عمل Flutter قبل استدعاء التخزين المحلي
+  WidgetsFlutterBinding.ensureInitialized();
+
+  // استرجاع البيانات والشبكات المحفوظة من ذاكرة الهاتف
+  await NetworkDataStore.loadData();
+
   runApp(const MyApp());
 }
 
