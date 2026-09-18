@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
+
 import 'models/network_request.dart';
 import 'screens/login_screen.dart';
 
 void main() async {
-  // ضمان تهيئة إطار عمل Flutter قبل استدعاء التخزين المحلي
   WidgetsFlutterBinding.ensureInitialized();
 
-  // استرجاع البيانات والشبكات المحفوظة من ذاكرة الهاتف
   await NetworkDataStore.loadData();
 
   runApp(const MyApp());
@@ -28,13 +27,19 @@ class MyApp extends StatelessWidget {
           elevation: 0,
           centerTitle: true,
           iconTheme: IconThemeData(color: Colors.white),
-          titleTextStyle: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
+          titleTextStyle: TextStyle(
+            color: Colors.white,
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+          ),
         ),
         elevatedButtonTheme: ElevatedButtonThemeData(
           style: ElevatedButton.styleFrom(
             backgroundColor: const Color(0xFF5A3192),
             foregroundColor: Colors.white,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
           ),
         ),
       ),
