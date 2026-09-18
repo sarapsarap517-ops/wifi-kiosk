@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:url_launcher/url_launcher.dart';
 import '../models/network_request.dart';
 
 class AddNetworkScreen extends StatefulWidget {
@@ -11,55 +10,34 @@ class AddNetworkScreen extends StatefulWidget {
 
 class _AddNetworkScreenState extends State<AddNetworkScreen> {
   final _formKey = GlobalKey<FormState>();
-  final _networkNameController = TextEditingController();
+  final _netNameController = TextEditingController();
   final _ownerNameController = TextEditingController();
   final _phoneController = TextEditingController();
   final _cityController = TextEditingController();
 
-  // رقم الواتساب الخاص بالإدارة
-  final String _adminWhatsAppPhone = "967730728514";
+  void _submitRequest() {
+    if (_formKey.currentState!.validate()) {
+      // توليد رقم تسلسلي آلي للشبكة (مثلاً يبدأ من 1001)
+      final generatedId = (1000 + NetworkDataStore.requests.length + 1).toString();
 
-  Future<void> _submitRequest() async {
-    if (!_formKey.currentState!.validate()) return;
-
-    // 1. إضافة الطلب إلى قائمة الطلبات
-    final newRequest = NetworkRequest(
-      id: DateTime.now().millisecondsSinceEpoch.toString(),
-      networkName: _networkNameController.text,
-      ownerName: _ownerNameController.text,
-      phone: _phoneController.text,
-      city: _cityController.text,
-      status: 'معلق',
-    );
-
-    setState(() {
-      NetworkDataStore.requests.add(newRequest);
-    });
-
-    // 2. تجهيز وفتح الواتساب
-    final String message = '''
-طلب إضافة شبكة جديدة 📡
--------------------------
-اسم الشبكة: ${_networkNameController.text}
-اسم المالك: ${_ownerNameController.text}
-رقم التواصل: ${_phoneController.text}
-المدينة / المنطقة: ${_cityController.text}
--------------------------
-يرجى المراجعة والقبول من لوحة التحكم.
-''';
-
-    final Uri whatsappUri = Uri.parse(
-      "https://wa.me/$_adminWhatsAppPhone?text=${Uri.encodeComponent(message)}",
-    );
-
-    if (await canLaunchUrl(whatsappUri)) {
-      await launchUrl(whatsappUri, mode: LaunchMode.externalApplication);
-    }
-
-    if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('تم تقديم الطلب وتم فتح الواتساب للإرسال للإدارة')),
+      final newNetwork = NetworkRequest(
+        id: generatedId,
+        networkName: _netNameController.text.trim(),
+        ownerName: _ownerNameController.text.trim(),
+        phone: _phoneController.text.trim(),
+        city: _cityController.text.trim(),
+        status: 'قيد الانتظار',
+        categories: [], // بدون فئات حتى يضيفها المالك لاحقاً
       );
+
+      setState(() {
+        NetworkDataStore.requests.add(newNetwork);
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('تم إرسال طلب إضافة شبكة "${newNetwork.networkName}" بنجاح، بانتظار موافقة الأدمن.')),
+      );
+
       Navigator.pop(context);
     }
   }
@@ -72,6 +50,7 @@ class _AddNetworkScreenState extends State<AddNetworkScreen> {
         appBar: AppBar(
           title: const Text('طلب إضافة شبكة'),
           backgroundColor: const Color(0xFF5A3192),
+          centerTitle: true,
         ),
         body: Padding(
           padding: const EdgeInsets.all(16.0),
@@ -80,39 +59,38 @@ class _AddNetworkScreenState extends State<AddNetworkScreen> {
             child: ListView(
               children: [
                 TextFormField(
-                  controller: _networkNameController,
-                  decoration: const InputDecoration(labelText: 'اسم الشبكة', border: OutlineInputBorder()),
-                  validator: (v) => v!.isEmpty ? 'مطلوب' : null,
+                  controller: _netNameController,
+                  decoration: const InputDecoration(labelText: 'اسم الشبكة *', border: OutlineInputBorder()),
+                  validator: (v) => v == null || v.isEmpty ? 'يرجى إدخال اسم الشبكة' : null,
                 ),
                 const SizedBox(height: 12),
                 TextFormField(
                   controller: _ownerNameController,
-                  decoration: const InputDecoration(labelText: 'اسم المالك / المسؤول', border: OutlineInputBorder()),
-                  validator: (v) => v!.isEmpty ? 'مطلوب' : null,
+                  decoration: const InputDecoration(labelText: 'اسم المالك *', border: OutlineInputBorder()),
+                  validator: (v) => v == null || v.isEmpty ? 'يرجى إدخال اسم المالك' : null,
                 ),
                 const SizedBox(height: 12),
                 TextFormField(
                   controller: _phoneController,
                   keyboardType: TextInputType.phone,
-                  decoration: const InputDecoration(labelText: 'رقم الهاتف', border: OutlineInputBorder()),
-                  validator: (v) => v!.isEmpty ? 'مطلوب' : null,
+                  decoration: const InputDecoration(labelText: 'رقم الهاتف *', border: OutlineInputBorder()),
+                  validator: (v) => v == null || v.isEmpty ? 'يرجى إدخال رقم الهاتف' : null,
                 ),
                 const SizedBox(height: 12),
                 TextFormField(
                   controller: _cityController,
-                  decoration: const InputDecoration(labelText: 'المدينة / العنوان', border: OutlineInputBorder()),
-                  validator: (v) => v!.isEmpty ? 'مطلوب' : null,
+                  decoration: const InputDecoration(labelText: 'المدينة / المنطقة *', border: OutlineInputBorder()),
+                  validator: (v) => v == null || v.isEmpty ? 'يرجى إدخال المدينة' : null,
                 ),
-                const SizedBox(height: 20),
-                ElevatedButton.icon(
+                const SizedBox(height: 24),
+                ElevatedButton(
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFF5A3192),
                     padding: const EdgeInsets.symmetric(vertical: 14),
                   ),
                   onPressed: _submitRequest,
-                  icon: const Icon(Icons.send, color: Colors.white),
-                  label: const Text('إرسال الطلب عبر الواتساب وللإدارة', style: TextStyle(color: Colors.white, fontSize: 16)),
-                )
+                  child: const Text('إرسال الطلب', style: TextStyle(color: Colors.white, fontSize: 16)),
+                ),
               ],
             ),
           ),
