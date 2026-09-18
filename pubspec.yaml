@@ -1,15 +1,15 @@
 name: wifi_kiosk
-description: "تطبيق كروت الواي فاي"
+description: تطبيق كروت الواي فاي
 publish_to: 'none'
-
 version: 1.0.0+1
 
 environment:
-  sdk: '>=3.0.0 <4.0.0'
+  sdk: ">=3.0.0 <4.0.0"
 
 dependencies:
   flutter:
     sdk: flutter
+
   cupertino_icons: ^1.0.6
   url_launcher: ^6.2.5
   http: ^1.2.0
