@@ -1,138 +1,95 @@
 import 'package:flutter/material.dart';
-import 'wifi_cabin_screen.dart';
-import 'networks_gallery_screen.dart';
-import 'login_screen.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'settings_screen.dart';
 import 'add_network_screen.dart';
+import 'networks_gallery_screen.dart';
 import 'admin_requests_screen.dart';
+import 'wifi_cabin_screen.dart';
+import 'login_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
 
-  final bool isAdminUser = true; // تفعيل خيار الأدمن
+  // دالة فتح الواتساب للدعم الفني
+  Future<void> _openWhatsApp(BuildContext context) async {
+    final Uri whatsappUrl = Uri.parse("https://wa.me/967730728514");
+    if (await canLaunchUrl(whatsappUrl)) {
+      await launchUrl(whatsappUrl, mode: LaunchMode.externalApplication);
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('تعذر فتح تطبيق الواتساب')),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Directionality(
       textDirection: TextDirection.rtl,
       child: Scaffold(
+        appBar: AppBar(
+          title: const Text('الرئيسية'),
+          backgroundColor: const Color(0xFF5A3192),
+          centerTitle: true,
+        ),
         drawer: _buildDrawer(context),
-        body: SafeArea(
-          child: Column(
+        body: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: GridView.count(
+            crossAxisCount: 2,
+            crossAxisSpacing: 16,
+            mainAxisSpacing: 16,
             children: [
-              // الهيدر البنفسجي للرصيد والحساب
-              Container(
-                color: const Color(0xFF5A3192),
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Builder(
-                          builder: (context) => IconButton(
-                            icon: const Icon(Icons.menu, color: Colors.white),
-                            onPressed: () => Scaffold.of(context).openDrawer(),
-                          ),
-                        ),
-                        Stack(
-                          children: [
-                            const Icon(Icons.notifications_none, color: Colors.white, size: 28),
-                            Positioned(
-                              right: 0,
-                              child: CircleAvatar(
-                                radius: 8,
-                                backgroundColor: Colors.red,
-                                child: const Text('0', style: TextStyle(color: Colors.white, fontSize: 10)),
-                              ),
-                            ),
-                          ],
-                        ),
-                        const CircleAvatar(
-                          backgroundColor: Colors.lightBlueAccent,
-                          child: Icon(Icons.person, color: Colors.white),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 16),
-                    const Text('رصيدك المتاح', style: TextStyle(color: Colors.white70, fontSize: 16)),
-                    const SizedBox(height: 5),
-                    const Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(Icons.account_balance_wallet, color: Colors.amber),
-                        SizedBox(width: 8),
-                        Text('*****', style: TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.bold)),
-                        SizedBox(width: 8),
-                        Icon(Icons.visibility_off, color: Colors.white76, size: 18),
-                      ],
-                    ),
-                  ],
-                ),
+              _buildHomeCard(
+                context,
+                title: 'كابينة WiFi',
+                icon: Icons.wifi,
+                color: Colors.purple,
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => WifiCabinScreen()),
+                  );
+                },
               ),
-
-              // شبكة الخدمات الأساسية
-              Expanded(
-                child: GridView.count(
-                  padding: const EdgeInsets.all(16),
-                  crossAxisCount: 4,
-                  crossAxisSpacing: 10,
-                  mainAxisSpacing: 10,
-                  children: [
-                    _buildServiceItem(context, Icons.payment, 'كروت السداد', Colors.orange, onTap: () {}),
-                    _buildServiceItem(context, Icons.wifi, 'كابينة WiFi', Colors.deepOrange, onTap: () {
-                      Navigator.push(context, MaterialPageRoute(builder: (context) => const WificabinScreen()));
-                    }),
-                    _buildServiceItem(context, Icons.apps, 'البرامج', Colors.green, onTap: () {}),
-                    _buildServiceItem(context, Icons.sports_esports, 'معرض الألعاب', Colors.cyan, onTap: () {}),
-                    _buildServiceItem(context, Icons.add_card, 'شحن حسابك', Colors.blue, onTap: () {}),
-                    _buildServiceItem(context, Icons.people_alt, 'إدارة عملائك', Colors.amber, onTap: () {}),
-                    _buildServiceItem(context, Icons.menu_book, 'الدليل الجماهيري', Colors.purple, onTap: () {}),
-                    _buildServiceItem(context, Icons.headset_mic, 'الدعم الفني', Colors.grey, onTap: () {}),
-                  ],
-                ),
+              _buildHomeCard(
+                context,
+                title: 'معرض شبكاتي',
+                icon: Icons.cell_tower,
+                color: Colors.blue,
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const NetworksGalleryScreen()),
+                  );
+                },
+              ),
+              _buildHomeCard(
+                context,
+                title: 'طلب إضافة شبكة',
+                icon: Icons.add_business,
+                color: Colors.green,
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const AddNetworkScreen()),
+                  );
+                },
+              ),
+              _buildHomeCard(
+                context,
+                title: 'الدعم الفني',
+                icon: Icons.support_agent,
+                color: Colors.orange,
+                onTap: () => _openWhatsApp(context),
               ),
             ],
           ),
         ),
-        bottomNavigationBar: BottomNavigationBar(
-          type: BottomNavigationBarType.fixed,
-          selectedItemColor: const Color(0xFF5A3192),
-          currentIndex: 0,
-          items: const [
-            BottomNavigationBarItem(icon: Icon(Icons.home), label: 'الرئيسية'),
-            BottomNavigationBarItem(icon: Icon(Icons.grid_view), label: 'الخدمات'),
-            BottomNavigationBarItem(icon: Icon(Icons.person), label: 'حسابي'),
-            BottomNavigationBarItem(icon: Icon(Icons.bar_chart), label: 'التقارير'),
-            BottomNavigationBarItem(icon: Icon(Icons.more_horiz), label: 'المزيد'),
-          ],
-        ),
       ),
     );
   }
 
-  Widget _buildServiceItem(BuildContext context, IconData icon, String title, Color color, {required VoidCallback onTap}) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: color.withOpacity(0.15),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Icon(icon, color: color, size: 28),
-          ),
-          const SizedBox(height: 4),
-          Text(title, textAlign: TextAlign.center, style: const TextStyle(fontSize: 11)),
-        ],
-      ),
-    );
-  }
-
-  // القائمة الجانبية (Drawer)
   Widget _buildDrawer(BuildContext context) {
     return Drawer(
       child: ListView(
@@ -140,65 +97,55 @@ class HomeScreen extends StatelessWidget {
         children: [
           const UserAccountsDrawerHeader(
             decoration: BoxDecoration(color: Color(0xFF5A3192)),
-            accountName: Text('عزيزي العميل'),
-            accountEmail: null,
+            accountName: Text('عزيزي العميل', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+            accountEmail: Text('مرحباً بك في التطبيق', style: TextStyle(color: Colors.white70)),
             currentAccountPicture: CircleAvatar(
               backgroundColor: Colors.white,
-              child: Icon(Icons.person, color: Color(0xFF5A3192)),
+              child: Icon(Icons.person, size: 40, color: Color(0xFF5A3192)),
             ),
           ),
-
-          // 1. الإعدادات
-          _buildDrawerTile(
-            Icons.settings,
-            'الإعدادات',
+          ListTile(
+            leading: const Icon(Icons.settings, color: Color(0xFF5A3192)),
+            title: const Text('الإعدادات'),
             onTap: () {
               Navigator.pop(context);
               Navigator.push(context, MaterialPageRoute(builder: (context) => const SettingsScreen()));
             },
           ),
-
-          // 2. طلب إضافة شبكة
-          _buildDrawerTile(
-            Icons.wifi_add,
-            'طلب إضافة شبكة',
+          ListTile(
+            leading: const Icon(Icons.add_circle_outline, color: Color(0xFF5A3192)),
+            title: const Text('طلب إضافة شبكة'),
             onTap: () {
               Navigator.pop(context);
               Navigator.push(context, MaterialPageRoute(builder: (context) => const AddNetworkScreen()));
             },
           ),
-
-          // 3. معرض شبكاتي
-          _buildDrawerTile(
-            Icons.wifi_tethering,
-            'معرض شبكاتي',
+          ListTile(
+            leading: const Icon(Icons.wifi, color: Color(0xFF5A3192)),
+            title: const Text('معرض شبكاتي'),
             onTap: () {
               Navigator.pop(context);
               Navigator.push(context, MaterialPageRoute(builder: (context) => const NetworksGalleryScreen()));
             },
           ),
-
-          // 4. طلبات الشبكات (للأدمن)
-          if (isAdminUser)
-            _buildDrawerTile(
-              Icons.admin_panel_settings,
-              'لوحة طلبات الشبكات',
-              color: Colors.redAccent,
-              onTap: () {
-                Navigator.pop(context);
-                Navigator.push(context, MaterialPageRoute(builder: (context) => const AdminRequestsScreen()));
-              },
-            ),
-
-          const Divider(),
-
-          // 5. تسجيل الخروج
-          _buildDrawerTile(
-            Icons.logout,
-            'تسجيل خروج',
-            color: Colors.red,
+          ListTile(
+            leading: const Icon(Icons.admin_panel_settings, color: Color(0xFF5A3192)),
+            title: const Text('طلبات الشبكات (الأدمن)'),
             onTap: () {
-              Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const LoginScreen()));
+              Navigator.pop(context);
+              Navigator.push(context, MaterialPageRoute(builder: (context) => const AdminRequestsScreen()));
+            },
+          ),
+          const Divider(),
+          ListTile(
+            leading: const Icon(Icons.exit_to_app, color: Colors.red),
+            title: const Text('تسجيل خروج', style: TextStyle(color: Colors.red)),
+            onTap: () {
+              Navigator.pushAndRemoveUntil(
+                context,
+                MaterialPageRoute(builder: (context) => const LoginScreen()),
+                (route) => false,
+              );
             },
           ),
         ],
@@ -206,11 +153,35 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildDrawerTile(IconData icon, String title, {VoidCallback? onTap, Color color = Colors.black87}) {
-    return ListTile(
-      leading: Icon(icon, color: color),
-      title: Text(title, style: TextStyle(color: color, fontWeight: FontWeight.bold)),
+  Widget _buildHomeCard(
+    BuildContext context, {
+    required String title,
+    required IconData icon,
+    required Color color,
+    required VoidCallback onTap,
+  }) {
+    return InkWell(
       onTap: onTap,
+      borderRadius: BorderRadius.circular(16),
+      child: Container(
+        decoration: BoxDecoration(
+          color: color.withOpacity(0.1),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: color.withOpacity(0.3)),
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(icon, size: 48, color: color),
+            const SizedBox(height: 12),
+            Text(
+              title,
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: color),
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
