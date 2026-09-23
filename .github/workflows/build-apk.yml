@@ -1,44 +1,43 @@
-name: Build Android APK
+name: Flutter Build & Fix
 
 on:
   push:
     branches: [ "main" ]
-  workflow_dispatch:
+  pull_request:
+    branches: [ "main" ]
 
 jobs:
-  build:
+  build-android:
     runs-on: ubuntu-latest
-
     steps:
       - uses: actions/checkout@v4
-
-      - name: Set up Java
-        uses: actions/setup-java@v4
+      
+      # تثبيت Java 17 (ضروري للبناء الحديث)
+      - uses: actions/setup-java@v4
         with:
-          distribution: 'zulu'
+          distribution: 'temurin'
           java-version: '17'
-
-      - name: Set up Flutter
-        uses: subosito/flutter-action@v2
+      
+      # تثبيت Flutter Stable
+      - uses: subosito/flutter-action@v2
         with:
           channel: 'stable'
-
-      - name: Generate Android Platform Files
-        run: flutter create . --platforms=android --org com.wifikiosk.app
-
-      - name: Set Min SDK Version
-        run: |
-          sed -i 's/minSdkVersion flutter.minSdkVersion/minSdkVersion 21/g' android/app/build.gradle || true
-          sed -i 's/minSdk = flutter.minSdkVersion/minSdk = 21/g' android/app/build.gradle || true
-
-      - name: Install Dependencies
-        run: flutter pub get
-
-      - name: Build APK
-        run: flutter build apk --debug
-
-      - name: Upload APK
-        uses: actions/upload-artifact@v4
+          cache: true
+      
+      # تحميل الحزم
+      - run: flutter pub get
+      
+      # تحليل الكود (مع تجاهل الأخطاء البسيطة للمتابعة)
+      - run: flutter analyze || true
+      
+      # ⚠️ ملاحظة مهمة: نحن لا نشغل flutter create هنا
+      # لأننا نثق بأن مجلد android/ موجود ومصلح في المستودع
+      
+      # بناء APK للتجربة (Debug)
+      - run: flutter build apk --debug
+      
+      # رفع الناتج للتحميل
+      - uses: actions/upload-artifact@v4
         with:
-          name: app-release
+          name: app-debug-apk
           path: build/app/outputs/flutter-apk/app-debug.apk
